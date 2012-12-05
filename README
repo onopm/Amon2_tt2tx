@@ -1,0 +1,36 @@
+
+amon2-tt2tx.pl - amon2-setup.plが出力したWebAppをTTerseからKolonに変換する
+
+
+Amon2のテンプレートエンジンであるXslateのSyntaxをKolonで毎回使っています。
+今までは、amon2-setup.pl で作成したものを手動で変更していましたが、
+いい加減面倒になってきたのでスクリプト化しました。
+
+変更箇所
+
+  - lib/MyApp/Web.pm の Syntax行: TTerse -> Kolon
+  - lib/MyApp/Web/Dispatcher.pm の render行: index.tt -> index.tx
+  - tmpl/*.tt を tmpl/*.tx に置き換え
+    
+    [% WRAPPER 'include/layout.tt' %]
+    ...
+    [% END %]
+    => : cascade 'include/layout.tx'
+       : around body -> {
+       ...
+       : }
+
+    <title>[% title || 'MyApp' %]</title>
+    <body[% IF bodyID %] id="[% bodyID %]"[% END %]>
+                [% content %]
+    => <title><: $title || 'MyApp' :></title>
+       <body<: if $bodyID  { :> id="<: $bodyID :>"<: } :>>
+                   : block body -> {}
+
+    その他：
+        %s/\[%/<:/g
+        %s/%]/:>/g
+
+確認バージョン
+    Amon2-3.63, Amon2-3.64
+
